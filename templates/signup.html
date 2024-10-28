@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Background and Layout */
+        body, html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden; /* Prevent overflow */
+            color: white; /* Default text color */
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed; /* Change to fixed for full coverage */
+            top: 0;
+            left: 0;
+            width: 100vw; /* Use viewport width */
+            height: 100vh; /* Use viewport height */
+            z-index: -1; /* Place it behind the content */
+            object-fit: cover; /* Cover the entire background */
+        }
+
+        /* Sign Up Form Container */
+        .signup-container {
+            backdrop-filter: blur(50px); /* 50% blur effect */
+            background-color: rgba(0, 0, 0, 0.1); /* 90% transparency */
+            padding: 40px;
+            border-radius: 12px;
+            width: 350px; /* Increased width for better layout */
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 1; /* Place it above the video */
+            position: relative; /* Position relative for header positioning */
+        }
+
+        /* Header Text Container */
+        .header-container {
+            width: calc(100% + 20px); /* Increase width beyond container */
+            padding: 10px 0; /* Vertical padding for spacing */
+            backdrop-filter: blur(100px); /* 100% blur effect */
+            background-color: black; /* Solid black background */
+            border-radius: 8px; /* Rounded corners */
+            margin-bottom: -30px; /* Negative margin to pull it into the signup container */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+            position: absolute; /* Absolute positioning */
+            top: -60px; /* Adjust position further up */
+            left: -10px; /* Adjust position further to the left */
+        }
+
+        /* Header Text */
+        .header-text {
+            font-size: 24px; /* Header font size */
+            color: white; /* Header text color */
+            text-align: center; /* Center text alignment */
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7); /* Text shadow for better visibility */
+        }
+
+        /* Form Styling */
+        h1 {
+            margin: 0; /* Remove default margin */
+            font-size: 28px; /* Slightly larger title */
+            color: #fff;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.1); /* Light, semi-transparent background for input fields */
+            color: white;
+            transition: border 0.3s, background-color 0.3s;
+        }
+
+        /* Hover effect for input fields */
+        input[type="text"]:hover,
+        input[type="password"]:hover {
+            border: 1px solid #007bff; /* Blue border on hover */
+            background-color: rgba(255, 255, 255, 0.2); /* Slightly lighter background */
+        }
+
+        /* Placeholder styling */
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Button Styling */
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: black; /* Button color */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        /* Hover effect for submit button */
+        button:hover {
+            background-color: #333; /* Darker gray on hover */
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+
+        /* Links */
+        .form-links {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .form-links a {
+            color: black; /* Black color for the link */
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        /* Hover effect for 'Already have an account?' link */
+        .form-links a:hover {
+            color: gray; /* Grey color on hover */
+            text-decoration: underline; /* Underline on hover */
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop class="video-background">
+        <source src="{{ url_for('static', filename='videos/videos.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Sign Up Form -->
+    <div class="signup-container">
+        <!-- Header Container -->
+        <div class="header-container">
+            <div class="header-text">Expense Management</div>
+        </div>
+
+        <h1>Create Account</h1>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div class="form-links">
+            <a href="{{ url_for('login') }}">Already have an account? Login</a>
+        </div>
+    </div>
+</body>
+</html>

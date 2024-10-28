@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Expense Tracker</title>
+     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General page styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
+
+        /* Video styling */
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Sidebar styling with a stronger blur effect */
+        .sidebar {
+            width: 250px;
+            background-color: rgba(43, 43, 43, 0.8);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(15px); /* Stronger blur effect for sidebar */
+        }
+
+        .sidebar h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: block;
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #333333;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #444444;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            background-color: #444444;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar button:hover {
+            background-color: #555555;
+        }
+
+        /* Main content styling */
+        .main-content {
+            flex-grow: 1;
+            background-color: rgba(26, 26, 26, 0.8);
+            padding: 30px;
+            border-radius: 5px;
+            margin-left: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            color: #ffffff;
+            backdrop-filter: blur(5px); /* Lighter blur for main content */
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding-bottom: 20px;
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .card {
+            background-color: rgba(51, 51, 51, 0.8);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 30%;
+        }
+
+        .card h2 {
+            margin: 10px 0;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+
+        .income-expense-chart, .category-chart {
+            width: 45%;
+            background-color: rgba(43, 43, 43, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        canvas {
+            max-width: 100%;
+            margin: 20px auto;
+        }
+
+        .expenses-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            color: #ffffff;
+        }
+
+        .expenses-table th, .expenses-table td {
+            padding: 10px;
+            border: 1px solid #444444;
+            text-align: left;
+        }
+
+        .expenses-table th {
+            background-color: #333333;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Video -->
+    <video autoplay muted loop class="background-video">
+        <source src="{{ url_for('static', filename='videos/page.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Dashboard</h2>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('add_expense') }}">Add Expense</a>
+            <a href="{{ url_for('add_income') }}">Add Income</a>
+            <a href="{{ url_for('view_transactions') }}">View Transactions</a>
+            <a href="{{ url_for('monthly_expense') }}">Monthly Expense</a>
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1>Expense Tracker</h1>
+            <div class="card-container">
+                <div class="card"><h2>Total Income: ${{ total_income }}</h2></div>
+                <div class="card"><h2>Total Expense: ${{ total_expense }}</h2></div>
+                <div class="card"><h2>Balance: ${{ balance }}</h2></div>
+            </div>
+            <div class="chart-container">
+                <div class="income-expense-chart">
+                    <h2>Income vs Expense</h2>
+                    <canvas id="incomeExpenseChart"></canvas>
+                </div>
+                <div class="category-chart">
+                    <h2>Expenses by Category</h2>
+                    <canvas id="categoryPieChart"></canvas>
+                </div>
+            </div>
+            <h2>Recent Transactions</h2>
+            <table class="expenses-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ expense.category }}</td>
+                        <td>${{ expense.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+        const incomeExpenseChart = new Chart(incomeExpenseCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Expense'],
+                datasets: [{
+                    label: 'Amount ($)',
+                    data: [{{ total_income }}, {{ total_expense }}],
+                    backgroundColor: ['rgba(76, 175, 80, 1)', 'rgba(244, 67, 54, 1)'],
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount ($)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Category'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                }
+            }
+        });
+
+        const categoryCtx = document.getElementById('categoryPieChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Food', 'EMI', 'Fuel', 'Education', 'Shopping'],
+                datasets: [{
+                    data: [100, 200, 150, 80, 120],
+                    backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0'],
+                }]
+            }
+        });
+    </script>
+</body>
+</html>
